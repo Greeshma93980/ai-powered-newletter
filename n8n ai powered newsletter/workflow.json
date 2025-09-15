@@ -1,0 +1,182 @@
+{
+  "name": "Ai personal assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "762db566-18f0-4f9e-b06b-a478fadb9cdd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "9dc41e5c-9ac8-49ab-b829-7a2e5410c19d",
+      "name": "Webhook",
+      "webhookId": "762db566-18f0-4f9e-b06b-a478fadb9cdd"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ea963bf6-1923-451e-8c25-b444c7a284d2",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.xml",
+      "typeVersion": 1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "b99341ac-a40b-4745-9537-228e14831012",
+      "name": "XML"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $json[\"rss\"][\"channel\"][\"item\"][0];\n\nreturn [\n  {\n    json: {\n      newsletterTitle: $json[\"rss\"][\"channel\"][\"title\"],  // Add this\n      summary: `📄 Summary for: ${item[\"title\"]}\\n${item[\"description\"] || \"No description\"}\\nRead more: ${item[\"link\"]}`\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "13225f1a-b694-4b91-9b32-76fdadb84f9c",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2be2e569-2add-4783-9999-600afadc0b2b",
+              "name": "newsletterText",
+              "value": "={{$json[\"summary\"]}}",
+              "type": "string"
+            },
+            {
+              "id": "9ccd68bb-bfc4-410b-a8d1-db3ac9711970",
+              "name": "newsletterTitle",
+              "value": "={{$json[\"newsletterTitle\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        816,
+        0
+      ],
+      "id": "aafc2cb8-21ba-4ad4-bffc-3694c1c1fd9b",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "workspace93980@gmail.com",
+        "subject": "=Newsletter: {{$json[\"newsletterTitle\"]}}",
+        "emailType": "text",
+        "message": "={{$json[\"newsletterText\"]}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "5152254b-7fc6-404a-adb7-33b8dd72ccf6",
+      "name": "Send a message",
+      "webhookId": "324d6923-745b-4eb1-a8b9-5ed9c46e57d4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "V3SU6VGFnlTyykWJ",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "XML": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a88cf659-c75f-4e6f-a9af-63508f55e4c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4dd41cb73435663dfd28a923ddd903a03c3dea18939f173493bd77916d77f925"
+  },
+  "id": "KcT9wrPnbvTnYBdu",
+  "tags": []
+}
